@@ -1,6 +1,7 @@
 package com.concours.komou.app.controller;
 
 import com.concours.komou.app.entity.Postulant;
+import com.concours.komou.app.payoad.PostulantPayload;
 import com.concours.komou.app.service.PostulantService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +21,7 @@ public class PostulantController {
     }
 
     @PostMapping("save")
-    public ResponseEntity<Map<String, Object>> subscribePostulant(@RequestBody Postulant postulant) {
+    public ResponseEntity<Map<String, Object>> subscribePostulant(@RequestBody PostulantPayload postulant) {
         return postulantService.savePostulant(postulant);
     }
 }

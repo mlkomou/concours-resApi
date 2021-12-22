@@ -1,7 +1,10 @@
 package com.concours.komou.service;
 
+import com.concours.komou.app.entity.Postulant;
 import com.concours.komou.app.entity.Response;
+import com.concours.komou.app.repo.PostulantRepository;
 import com.concours.komou.entity.ApplicationUser;
+import com.concours.komou.entity.UserAndPostulant;
 import com.concours.komou.entity.UserConnected;
 import com.concours.komou.repo.ApplicationUserRepository;
 import io.jsonwebtoken.Claims;
@@ -30,11 +33,13 @@ public class AuthService {
     private final ApplicationUserRepository applicationUserRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final PostulantRepository postulantRepository;
 
-    public AuthService(ApplicationUserRepository applicationUserRepository, BCryptPasswordEncoder bCryptPasswordEncoder, AuthenticationManager authenticationManager) {
+    public AuthService(ApplicationUserRepository applicationUserRepository, BCryptPasswordEncoder bCryptPasswordEncoder, AuthenticationManager authenticationManager, PostulantRepository postulantRepository) {
         this.applicationUserRepository = applicationUserRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.authenticationManager = authenticationManager;
+        this.postulantRepository = postulantRepository;
     }
 
 
@@ -56,11 +61,23 @@ public class AuthService {
                 userConnected.setToken(token);
                 userConnected.setUsername(applicationUser.getUsername());
                 System.out.println("user connected " + userConnected.getUsername());
-                return new ResponseEntity<>(Response.success(userConnected, "Authentification réussite"), HttpStatus.OK);
+                System.out.println("user type " + user.getType());
+                if (user.getPostulant() != null) {
+                    System.out.println("postulant : " + user.getPostulant().getNom() );
+                    UserAndPostulant userAndPostulant = new UserAndPostulant();
+                    userAndPostulant.setNom(user.getPostulant().getNom());
+                    userAndPostulant.setPrenom(user.getPostulant().getPrenom());
+                    userAndPostulant.setTelephone(user.getPostulant().getTelephone());
+                    userAndPostulant.setId(user.getPostulant().getId());
+                    userAndPostulant.setToken(token);
+                    return new ResponseEntity<>(Response.success(userAndPostulant, "Authentification réussie"), HttpStatus.OK);
+                }
+                return new ResponseEntity<>(Response.success(userConnected, "Authentification réussie"), HttpStatus.OK);
             }
             return new ResponseEntity<>(Response.error(new UserConnected(), "Authentification échouée"), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
-            return new ResponseEntity<>(Response.error(new UserConnected(), "Authentification échouée"), HttpStatus.INTERNAL_SERVER_ERROR);
+            System.err.println("auth error: " + e);
+            return new ResponseEntity<>(Response.error(e, "Authentification échouée"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
 

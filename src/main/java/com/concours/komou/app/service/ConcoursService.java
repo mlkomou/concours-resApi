@@ -6,6 +6,9 @@ import com.concours.komou.app.entity.DoumentNamePublication;
 import com.concours.komou.app.entity.Response;
 import com.concours.komou.app.repo.ConcoursRepository;
 import com.concours.komou.app.repo.DocumentNameRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -44,6 +47,16 @@ public class ConcoursService {
             return new ResponseEntity<>(Response.success(concoursSaved, "Concours enregistré"), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(Response.error(new HashMap<>(), "Erreur d'enregistrement"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> getAllConcoursByPage(int page, int size) {
+        try {
+            Pageable paging = PageRequest.of(page, size);
+            Page<Concours> concours = concoursRepository.findAll(paging);
+            return new ResponseEntity<>(Response.success(concours, "Liste concours"), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Response.error(new Concours(), "erreur de recuperation"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

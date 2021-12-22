@@ -6,8 +6,6 @@ import javax.persistence.*;
 @Table(name = "postulation_doc")
 @Access(AccessType.FIELD)
 public class PostulationDoc extends Generality {
-//    @OneToOne(mappedBy = "postulationDoc")
-//    private PostulationDoc postulationDoc;
 
     @Column(name = "path")
     private String path;

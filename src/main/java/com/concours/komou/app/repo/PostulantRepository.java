@@ -4,4 +4,6 @@ import com.concours.komou.app.entity.Postulant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PostulantRepository extends JpaRepository<Postulant, Long> {
+    boolean existsByTelephone(String phone);
+    Postulant findByTelephone(String telephone);
 }

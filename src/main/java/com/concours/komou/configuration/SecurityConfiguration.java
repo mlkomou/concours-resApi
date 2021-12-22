@@ -5,7 +5,6 @@ import com.concours.komou.security.AuthenticationFilter;
 import com.concours.komou.security.AuthorizationFilter;
 import com.concours.komou.service.ApplicationUserDetailsService;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,8 +20,7 @@ import org.springframework.web.filter.CorsFilter;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static com.concours.komou.constants.SecurityConstants.LOGIN_UP_URL;
-import static com.concours.komou.constants.SecurityConstants.SIGN_UP_URL;
+import static com.concours.komou.constants.SecurityConstants.*;
 
 
 @EnableWebSecurity
@@ -40,7 +38,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable().authorizeRequests()
-                .antMatchers(HttpMethod.POST, SIGN_UP_URL, LOGIN_UP_URL).permitAll()
+                .antMatchers(SIGN_UP_URL, LOGIN_UP_URL, CONCOURS_DOWNLOAD_URL, SIGN_UP_POSTULANT).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(new AuthenticationFilter(authenticationManager()))

@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,8 +24,9 @@ public class PostulationController {
     }
 
     @PostMapping("save")
-    public ResponseEntity<Map<String, Object>> saveUserPostulation(@RequestParam("userPostulation") String userPostulationString) throws JsonProcessingException {
+    public ResponseEntity<Map<String, Object>> saveUserPostulation(@RequestParam("userPostulation") String userPostulationString,
+                                                                   @RequestParam("docs") List<MultipartFile> docs) throws JsonProcessingException {
         UserPostulation userPostulation = new ObjectMapper().readValue(userPostulationString, UserPostulation.class);
-        return postulationService.savePostulation(userPostulation);
+        return postulationService.savePostulation(userPostulation, docs);
     }
 }

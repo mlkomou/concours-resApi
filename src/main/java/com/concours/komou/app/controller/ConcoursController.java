@@ -35,6 +35,12 @@ public class ConcoursController {
         return concoursService.saveConcours(concours, photo, docNames);
     }
 
+    @PostMapping("liste-pagination")
+    public ResponseEntity<Map<String, Object>> getConcoursByPage(@RequestParam("page") int page,
+                                                                 @RequestParam("size") int size) {
+        return concoursService.getAllConcoursByPage(page, size);
+    }
+
     @ResponseBody
     @GetMapping("download/{photo}")
     public ResponseEntity<ByteArrayResource> getImage(@PathVariable("photo") String photo) {

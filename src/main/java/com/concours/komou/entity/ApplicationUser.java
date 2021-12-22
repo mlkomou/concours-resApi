@@ -1,6 +1,7 @@
 package com.concours.komou.entity;
 
 import com.concours.komou.app.entity.Postulant;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 
@@ -11,9 +12,10 @@ public class ApplicationUser {
     private long id;
     private String username;
     private String password;
+    private String type;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "postulant", referencedColumnName = "id")
+    @JsonManagedReference(value = "user-postulant")
+    @OneToOne(mappedBy = "user")
     private Postulant postulant;
 
     public long getId() {
@@ -46,5 +48,13 @@ public class ApplicationUser {
 
     public void setPostulant(Postulant postulant) {
         this.postulant = postulant;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

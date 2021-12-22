@@ -1,6 +1,11 @@
 package com.concours.komou.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
+import javax.print.attribute.standard.DocumentName;
+import java.util.List;
 
 @Entity
 @Table(name = "participation")
@@ -8,15 +13,24 @@ import javax.persistence.*;
 public class Concours extends Generality {
     @Column(name = "name")
     private String name;
+    @Column(name = "frais")
+    private Long frais;
+    @Lob
+    @Column(name = "description")
     private String description;
+    @Column(name = "path")
     private String path;
 
-    @OneToOne(mappedBy = "concours")
-    private Postulation postulation;
+//    @JsonManagedReference(value = "postulation-concours")
+//    @OneToOne(mappedBy = "concours")
+//    private Postulation postulation;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "resultat", referencedColumnName = "id")
+    @OneToOne(mappedBy = "concours")
     private Resultat resultat;
+
+    @OneToMany(mappedBy = "concours")
+    @JsonIgnoreProperties(value = {"concours"}, allowSetters = true)
+    private List<DoumentNamePublication> docs;
 
     public String getName() {
         return name;
@@ -42,19 +56,27 @@ public class Concours extends Generality {
         this.path = path;
     }
 
-    public Postulation getPostulation() {
-        return postulation;
-    }
-
-    public void setPostulation(Postulation postulation) {
-        this.postulation = postulation;
-    }
-
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getFrais() {
+        return frais;
+    }
+
+    public void setFrais(Long frais) {
+        this.frais = frais;
+    }
+
+    public List<DoumentNamePublication> getDocs() {
+        return docs;
+    }
+
+    public void setDocs(List<DoumentNamePublication> docs) {
+        this.docs = docs;
     }
 }

@@ -13,11 +13,8 @@ public class Resultat extends Generality {
     @Column(name = "visibily")
     private Boolean visibily;
 
-//    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "postulantResultat", referencedColumnName = "id")
-//    private PostulantResultat postulantResultat;
-
-    @OneToOne(mappedBy = "resultat")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "concours", referencedColumnName = "id")
     private Concours concours;
 
     public String getName() {

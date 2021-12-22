@@ -7,8 +7,9 @@ import java.util.List;
 
 public class UserPostulation {
    public Long postulantId;
-   public Postulation postulation;
-   List<MultipartFile> docs;
+   public Long concoursId;
+   public String moyen;
+   public String identifiant;
 
     public Long getPostulantId() {
         return postulantId;
@@ -18,19 +19,27 @@ public class UserPostulation {
         this.postulantId = postulantId;
     }
 
-    public Postulation getPostulation() {
-        return postulation;
+    public Long getConcoursId() {
+        return concoursId;
     }
 
-    public void setPostulation(Postulation postulation) {
-        this.postulation = postulation;
+    public void setConcoursId(Long concoursId) {
+        this.concoursId = concoursId;
     }
 
-    public List<MultipartFile> getDocs() {
-        return docs;
+    public String getMoyen() {
+        return moyen;
     }
 
-    public void setDocs(List<MultipartFile> docs) {
-        this.docs = docs;
+    public void setMoyen(String moyen) {
+        this.moyen = moyen;
+    }
+
+    public String getIdentifiant() {
+        return identifiant;
+    }
+
+    public void setIdentifiant(String identifiant) {
+        this.identifiant = identifiant;
     }
 }

@@ -1,6 +1,8 @@
 package com.concours.komou.app.entity;
 
 import com.concours.komou.entity.ApplicationUser;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 
@@ -17,15 +19,14 @@ public class Postulant extends Generality {
     @Column(name = "telephone")
     private String telephone;
 
-    @OneToOne(mappedBy = "postulant")
+    @JsonBackReference(value = "user-postulant")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user", referencedColumnName = "id")
     private ApplicationUser user;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "postulantResultat", referencedColumnName = "id")
     private PostulantResultat postulantResultat;
-
-    @OneToOne(mappedBy = "postulant")
-    private Postulation postulation;
 
     public String getNom() {
         return nom;
@@ -57,14 +58,6 @@ public class Postulant extends Generality {
 
     public void setUser(ApplicationUser user) {
         this.user = user;
-    }
-
-    public Postulation getPostulation() {
-        return postulation;
-    }
-
-    public void setPostulation(Postulation postulation) {
-        this.postulation = postulation;
     }
 
     public PostulantResultat getPostulantResultat() {
