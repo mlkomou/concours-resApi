@@ -5,7 +5,7 @@ import java.util.List;
 public class ResultatPostulant {
     public String resultatName;
     public Long concoursId;
-    public List<ResultatSingle> resultatSingles;
+    public List<Long> postulantIds;
 
     public String getResultatName() {
         return resultatName;
@@ -15,12 +15,12 @@ public class ResultatPostulant {
         this.resultatName = resultatName;
     }
 
-    public List<ResultatSingle> getResultatSingles() {
-        return resultatSingles;
+    public List<Long> getPostulantIds() {
+        return postulantIds;
     }
 
-    public void setResultatSingles(List<ResultatSingle> resultatSingles) {
-        this.resultatSingles = resultatSingles;
+    public void setPostulantIds(List<Long> postulantIds) {
+        this.postulantIds = postulantIds;
     }
 
     public Long getConcoursId() {

@@ -21,12 +21,9 @@ public class Concours extends Generality {
     @Column(name = "path")
     private String path;
 
-//    @JsonManagedReference(value = "postulation-concours")
+//    @JsonManagedReference(value = "resultat-concours")
 //    @OneToOne(mappedBy = "concours")
-//    private Postulation postulation;
-
-    @OneToOne(mappedBy = "concours")
-    private Resultat resultat;
+//    private Resultat resultat;
 
     @OneToMany(mappedBy = "concours")
     @JsonIgnoreProperties(value = {"concours"}, allowSetters = true)
@@ -40,13 +37,13 @@ public class Concours extends Generality {
         this.name = name;
     }
 
-    public Resultat getResultat() {
-        return resultat;
-    }
-
-    public void setResultat(Resultat resultat) {
-        this.resultat = resultat;
-    }
+//    public Resultat getResultat() {
+//        return resultat;
+//    }
+//
+//    public void setResultat(Resultat resultat) {
+//        this.resultat = resultat;
+//    }
 
     public String getPath() {
         return path;

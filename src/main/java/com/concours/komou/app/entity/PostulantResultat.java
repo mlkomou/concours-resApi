@@ -1,5 +1,7 @@
 package com.concours.komou.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 
 @Entity
@@ -10,7 +12,8 @@ public class PostulantResultat extends Generality {
     @JoinColumn(name = "resultat")
     private Resultat resultat;
 
-    @OneToOne(mappedBy = "postulantResultat")
+    @ManyToOne
+    @JoinColumn(name = "postulant")
     private Postulant postulant;
 
     @Column(name = "statut")

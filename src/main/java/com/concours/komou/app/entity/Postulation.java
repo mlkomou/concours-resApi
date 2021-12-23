@@ -1,6 +1,5 @@
 package com.concours.komou.app.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
@@ -10,7 +9,6 @@ import javax.persistence.*;
 @Access(AccessType.FIELD)
 public class Postulation extends Generality {
 
- @JsonBackReference(value = "postulation-postulant")
  @ManyToOne
     @JoinColumn(name="postulant")
     private Postulant postulant;
@@ -46,4 +44,5 @@ public class Postulation extends Generality {
  public void setPaiement(Paiement paiement) {
   this.paiement = paiement;
  }
+
 }

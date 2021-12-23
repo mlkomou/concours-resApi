@@ -29,4 +29,18 @@ public class PostulationController {
         UserPostulation userPostulation = new ObjectMapper().readValue(userPostulationString, UserPostulation.class);
         return postulationService.savePostulation(userPostulation, docs);
     }
+
+    @PostMapping("my-postulations")
+    public ResponseEntity<Map<String, Object>> getPostulationByPostulant(@RequestParam("page") int page,
+                                                                         @RequestParam("size") int size,
+                                                                         @RequestParam("postulantId") Long postulantId) {
+        return postulationService.getByPostulant(postulantId, page, size);
+    }
+
+    @PostMapping("concours-postulations")
+    public ResponseEntity<Map<String, Object>> getPostulationByConcours(@RequestParam("page") int page,
+                                                                         @RequestParam("size") int size,
+                                                                         @RequestParam("concoursId") Long concoursId) {
+        return postulationService.getByConcours(concoursId, page, size);
+    }
 }

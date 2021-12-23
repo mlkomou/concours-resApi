@@ -24,10 +24,6 @@ public class Postulant extends Generality {
     @JoinColumn(name = "user", referencedColumnName = "id")
     private ApplicationUser user;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "postulantResultat", referencedColumnName = "id")
-    private PostulantResultat postulantResultat;
-
     public String getNom() {
         return nom;
     }
@@ -60,11 +56,4 @@ public class Postulant extends Generality {
         this.user = user;
     }
 
-    public PostulantResultat getPostulantResultat() {
-        return postulantResultat;
-    }
-
-    public void setPostulantResultat(PostulantResultat postulantResultat) {
-        this.postulantResultat = postulantResultat;
-    }
 }

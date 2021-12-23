@@ -1,5 +1,7 @@
 package com.concours.komou.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 
 @Entity
@@ -13,8 +15,9 @@ public class Resultat extends Generality {
     @Column(name = "visibily")
     private Boolean visibily;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "concours", referencedColumnName = "id")
+//    @JsonBackReference(value = "resultat-concours")
+    @ManyToOne
+    @JoinColumn(name = "concours")
     private Concours concours;
 
     public String getName() {

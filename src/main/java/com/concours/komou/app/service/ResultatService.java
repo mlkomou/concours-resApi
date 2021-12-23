@@ -2,11 +2,7 @@ package com.concours.komou.app.service;
 
 import com.concours.komou.app.entity.*;
 import com.concours.komou.app.payoad.ResultatPostulant;
-import com.concours.komou.app.payoad.ResultatSingle;
-import com.concours.komou.app.repo.ConcoursRepository;
-import com.concours.komou.app.repo.PostulantRepository;
-import com.concours.komou.app.repo.PostulantResultatRepository;
-import com.concours.komou.app.repo.ResultatRepository;
+import com.concours.komou.app.repo.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,12 +15,14 @@ public class ResultatService {
     private final ConcoursRepository concoursRepository;
     private final PostulantRepository postulantRepository;
     private final PostulantResultatRepository postulantResultatRepository;
+    private final PostulationRepository postulationRepository;
 
-    public ResultatService(ResultatRepository resultatRepository, ConcoursRepository concoursRepository, PostulantRepository postulantRepository, PostulantResultatRepository postulantResultatRepository) {
+    public ResultatService(ResultatRepository resultatRepository, ConcoursRepository concoursRepository, PostulantRepository postulantRepository, PostulantResultatRepository postulantResultatRepository, PostulationRepository postulationRepository) {
         this.resultatRepository = resultatRepository;
         this.concoursRepository = concoursRepository;
         this.postulantRepository = postulantRepository;
         this.postulantResultatRepository = postulantResultatRepository;
+        this.postulationRepository = postulationRepository;
     }
     public ResponseEntity<Map<String, Object>> publishResultat(ResultatPostulant resultatPostulant) {
         try {
@@ -39,9 +37,9 @@ public class ResultatService {
             resultat.setVisibily(false);
             Resultat resultatSaved = resultatRepository.save(resultat);// save resultat
 
-            List<ResultatSingle> resultatSingles = resultatPostulant.getResultatSingles();
-            resultatSingles.forEach(resultatSingle -> {
-                Optional<Postulant> postulantOptional = postulantRepository.findById(resultatSingle.getPostulantId());
+            List<Long> postulantIds = resultatPostulant.getPostulantIds();
+            postulantIds.forEach(postulantId -> {
+                Optional<Postulant> postulantOptional = postulantRepository.findById(postulantId);
                 Postulant postulant = postulantOptional.get();
                 PostulantResultat postulantResultat = new PostulantResultat();
 
@@ -52,9 +50,16 @@ public class ResultatService {
                 postulans.add(postulant);
             });
 
-            List<Postulant> postulantList = postulantRepository.findAll();
+//            List<Postulant> postulantList = postulantRepository.findAll();
+            List<Postulation> postulantionList = postulationRepository.findAllByConcoursId(resultatPostulant.getConcoursId());
+            List<Postulant> postulantList = new ArrayList<>();
+            postulantionList.forEach(postulation -> {
+                postulantList.add(postulation.getPostulant());
+            });
             postulantList.removeAll(postulans); //difference between admis and echoues
             System.err.println("numbre echoue " + postulantList.size());
+
+
             postulantList.forEach(postulant -> {
                 PostulantResultat postulantResultat = new PostulantResultat();
 

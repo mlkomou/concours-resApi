@@ -4,6 +4,9 @@ import com.concours.komou.app.constants.AppConstants;
 import com.concours.komou.app.entity.*;
 import com.concours.komou.app.payoad.UserPostulation;
 import com.concours.komou.app.repo.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -72,6 +75,28 @@ public class PostulationService {
             return new ResponseEntity<>(Response.error(new HashMap<>(), "Vous avez déjà postulé pour ce concours !"), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(Response.error(new HashMap<>(), "Erreur d'enregistrement"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    public ResponseEntity<Map<String, Object>> getByPostulant(Long postulantId, int page, int size) {
+        try {
+            Pageable paging = PageRequest.of(page, size);
+            Page<Postulation> postulations = postulationRepository.findByPostulantId(paging, postulantId);
+            return new ResponseEntity<>(Response.success(postulations, "Liste de mes concours !"), HttpStatus.OK);
+        } catch (Exception e) {
+            System.err.println("error liste: " + e);
+            return new ResponseEntity<>(Response.error(e, "de recuperation !"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> getByConcours(Long concoursId, int page, int size) {
+        try {
+            Pageable paging = PageRequest.of(page, size);
+            Page<Postulation> postulations = postulationRepository.findByConcoursId(paging, concoursId);
+            System.out.println("postulant postulation: " + postulations.getContent().get(0));
+            return new ResponseEntity<>(Response.success(postulations, "Liste des postulants !"), HttpStatus.OK);
+        } catch (Exception e) {
+            System.err.println("error liste: " + e);
+            return new ResponseEntity<>(Response.error(e, "Erreur de recuperation !"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
