@@ -3,6 +3,9 @@ package com.concours.komou.app.service;
 import com.concours.komou.app.entity.*;
 import com.concours.komou.app.payoad.ResultatPostulant;
 import com.concours.komou.app.repo.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -72,11 +75,44 @@ public class ResultatService {
             postulantResultatRepository.saveAll(postulantResultatList); // save resltat for each postulant admis
             postulantResultatRepository.saveAll(postulantResultatEchoue); // save resltat for each postulant echoue
 
-
             return new ResponseEntity<>(Response.success(resultatSaved, "Resultat publiée"), HttpStatus.OK);
         } catch (Exception e) {
-
             return new ResponseEntity<>(Response.error(new HashMap<>(), "Erreur d'enregistrement"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> getResultats(int page, int size) {
+        try {
+            Pageable paging = PageRequest.of(page, size);
+            Page<Resultat> resultats = resultatRepository.findAll(paging);
+            return new ResponseEntity<>(Response.success(resultats, "Liste des résultats."), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Response.error(new HashMap<>(), "Erreur de  recupération."), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> activeDesactiveResultat(Boolean visibility, Long id) {
+        try {
+            Optional<Resultat> resultatOptional = resultatRepository.findById(id);
+            if (resultatOptional.isPresent()) {
+                Resultat resultat = resultatOptional.get();
+                resultat.setVisibily(visibility);
+                resultatRepository.save(resultat);
+                return new ResponseEntity<>(Response.success(resultat, "Visibilité modifiée avec succès."), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(Response.error(new HashMap<>(), "Ce résultat n'existe pas !"), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Response.error(new HashMap<>(), "Erreur de  recupération."), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> getResultByPostulant(int page, int size, Long postulantId) {
+        try {
+            Pageable paging = PageRequest.of(page, size);
+            Page<PostulantResultat> resultatPage = postulantResultatRepository.findAllByPostulantId(paging, postulantId);
+            return new ResponseEntity<>(Response.success(resultatPage, "Liste des résultats !"), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Response.error(new HashMap<>(), "Erreur de  recupération."), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
