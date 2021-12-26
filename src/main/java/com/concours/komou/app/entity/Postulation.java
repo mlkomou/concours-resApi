@@ -21,6 +21,9 @@ public class Postulation extends Generality {
  @OneToOne(mappedBy = "postulation")
  private Paiement paiement;
 
+ @Column(name = "validation")
+ private String validation = "ATTENTE"; // ATTENTE, VALIDÉ, REJETTÉ
+
  public Postulant getPostulant() {
   return postulant;
  }
@@ -45,4 +48,11 @@ public class Postulation extends Generality {
   this.paiement = paiement;
  }
 
+ public String getValidation() {
+  return validation;
+ }
+
+ public void setValidation(String validation) {
+  this.validation = validation;
+ }
 }

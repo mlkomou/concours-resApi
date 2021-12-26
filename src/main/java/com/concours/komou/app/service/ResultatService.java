@@ -115,4 +115,14 @@ public class ResultatService {
             return new ResponseEntity<>(Response.error(new HashMap<>(), "Erreur de  recupération."), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    public ResponseEntity<Map<String, Object>> getPostulantByResultat(int page, int size, Long resultatId) {
+        try {
+            Pageable paging = PageRequest.of(page, size);
+            Page<PostulantResultat> resultatPage = postulantResultatRepository.findAllByResultatId(paging, resultatId);
+            return new ResponseEntity<>(Response.success(resultatPage, "Liste des postulants !"), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Response.error(new HashMap<>(), "Erreur de  recupération."), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

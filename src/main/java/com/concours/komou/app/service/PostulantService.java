@@ -7,7 +7,6 @@ import com.concours.komou.app.repo.PostulantRepository;
 
 import com.concours.komou.app.verification.AllMethode;
 import com.concours.komou.entity.ApplicationUser;
-import com.concours.komou.entity.UserAndPostulant;
 import com.concours.komou.repo.ApplicationUserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

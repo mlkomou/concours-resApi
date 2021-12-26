@@ -61,6 +61,7 @@ public class PostulationService {
                     try {
                         postulationDoc.setPostulation(postulationSaved);
                         postulationDoc.setType(doc.getContentType());
+                        postulationDoc.setName(doc.getOriginalFilename());
                         postulationDoc.setPath(uploadImageService.uploadImage(doc, AppConstants.DOCUMENT_UPLOAD_LINK));
                         docArray.add(postulationDoc);
                     } catch (IOException e) {

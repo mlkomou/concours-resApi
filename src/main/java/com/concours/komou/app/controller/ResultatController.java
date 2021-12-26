@@ -35,6 +35,13 @@ public class ResultatController {
         return resultatService.getResultByPostulant(page, size, postulantId);
     }
 
+    @PostMapping("liste-by-resultat")
+    public ResponseEntity<Map<String, Object>> getListeByPostulantByResultat(@RequestParam("page") int page,
+                                                                   @RequestParam("size") int size,
+                                                                   @RequestParam("resultatId") Long resultatId) {
+        return resultatService.getPostulantByResultat(page, size, resultatId);
+    }
+
     @PostMapping("change-visibiliy")
     ResponseEntity<Map<String, Object>> changeVisibility(@RequestParam("visibility") Boolean visibility,
                                                          @RequestParam("id") Long id) {

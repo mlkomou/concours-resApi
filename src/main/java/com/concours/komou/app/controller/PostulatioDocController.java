@@ -1,6 +1,7 @@
 package com.concours.komou.app.controller;
 
 import com.concours.komou.app.constants.AppConstants;
+import com.concours.komou.app.service.PostulationDocService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -9,11 +10,30 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/postulation-doc/")
 public class PostulatioDocController {
 
+    private final PostulationDocService postulationDocService;
+
+    public PostulatioDocController(PostulationDocService postulationDocService) {
+        this.postulationDocService = postulationDocService;
+    }
+
+    @PostMapping("by-postulant-concours")
+    public ResponseEntity<Map<String, Object>> getDossierByPostulantAndConcours(@RequestParam("postulationId") Long postulationId,
+                                                                                @RequestParam("concoursId") Long concoursId,
+                                                                                @RequestParam("postulantId") Long postulantId) {
+        return postulationDocService.getDocByPostulantAndConcours(postulationId, concoursId, postulantId);
+    }
+
+    @PostMapping("chane-state")
+    public ResponseEntity<Map<String, Object>> changeState(@RequestParam("docId") Long docId,
+                                                           @RequestParam("accepted") boolean accepted) {
+        return postulationDocService.changeState(docId, accepted);
+    }
 
     @ResponseBody
     @GetMapping("download/{photo}")

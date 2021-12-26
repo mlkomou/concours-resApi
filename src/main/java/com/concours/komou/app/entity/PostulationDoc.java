@@ -10,6 +10,9 @@ public class PostulationDoc extends Generality {
     @Column(name = "path")
     private String path;
 
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "type")
     private String type;
 
@@ -50,5 +53,13 @@ public class PostulationDoc extends Generality {
 
     public void setAccepted(boolean accepted) {
         this.accepted = accepted;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
