@@ -17,7 +17,7 @@ public class PostulationDoc extends Generality {
     private String type;
 
     @Column(name = "accepted")
-    private boolean accepted;
+    private String accepted;
 
     @ManyToOne
     @JoinColumn(name="postulation")
@@ -47,11 +47,11 @@ public class PostulationDoc extends Generality {
         this.postulation = postulation;
     }
 
-    public boolean isAccepted() {
+    public String getAccepted() {
         return accepted;
     }
 
-    public void setAccepted(boolean accepted) {
+    public void setAccepted(String accepted) {
         this.accepted = accepted;
     }
 

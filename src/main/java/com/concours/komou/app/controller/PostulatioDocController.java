@@ -31,8 +31,9 @@ public class PostulatioDocController {
 
     @PostMapping("chane-state")
     public ResponseEntity<Map<String, Object>> changeState(@RequestParam("docId") Long docId,
-                                                           @RequestParam("accepted") boolean accepted) {
-        return postulationDocService.changeState(docId, accepted);
+                                                           @RequestParam("accepted") String accepted,
+                                                           @RequestParam("postulationId") Long postulationId) {
+        return postulationDocService.changeState(docId, accepted, postulationId);
     }
 
     @ResponseBody

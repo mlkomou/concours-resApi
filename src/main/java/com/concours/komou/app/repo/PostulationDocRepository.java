@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface PostulationDocRepository extends JpaRepository<PostulationDoc, Long> {
     List<PostulationDoc> findAllByPostulationIdAndPostulationConcoursIdAndPostulationPostulantId(Long postulationId, Long concoursId, Long postulantId);
+    List<PostulationDoc> findAllByPostulationId(Long postulationId);
 }
