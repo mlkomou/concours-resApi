@@ -5,6 +5,11 @@ import com.concours.komou.app.service.ResultatService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 
@@ -48,4 +53,21 @@ public class ResultatController {
         return resultatService.activeDesactiveResultat(visibility, id);
     }
 
+    @PostMapping("export-excel")
+    public void exportToExcel(HttpServletResponse response, @RequestParam("resultatId") Long resultatId) throws IOException {
+        response.setContentType("application/octet-stream");
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String currentDateTime = dateFormatter.format(new Date());
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=users_" + currentDateTime + ".xlsx";
+        response.setHeader(headerKey, headerValue);
+
+        resultatService.export(response, resultatId);
+
+
+//        UserExcelExporter excelExporter = new UserExcelExporter(listUsers);
+//
+//        excelExporter.export(response);
+    }
 }

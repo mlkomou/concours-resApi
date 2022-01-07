@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class PostulantService {
@@ -38,6 +39,7 @@ public class PostulantService {
                 postulant.setNom(postulantPayload.getNom());
                 postulant.setPrenom(postulantPayload.getPrenom());
                 postulant.setTelephone(postulantPayload.getTelephone());
+                postulant.setNotificationId(postulantPayload.getNotificationId());
                 user.setUsername(postulant.getTelephone());
                 user.setPassword(bCryptPasswordEncoder.encode(postulantPayload.getPassword()));
                 ApplicationUser userSaved = applicationUserRepository.save(user);
@@ -49,6 +51,22 @@ public class PostulantService {
             return new ResponseEntity<>(Response.error(new HashMap<>(), "Ce postulant existe déjà. Veuillez choisir un autre numéro de téléphone."), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             return new ResponseEntity<>(Response.error(new HashMap<>(), "Erreur d'enregistrement"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> updateOneSignalId(Long userId, String oneSignalId) {
+        try {
+            Optional<Postulant> postulantOptional = postulantRepository.findById(userId);
+            if (postulantOptional.isPresent()) {
+                Postulant postulant = postulantOptional.get();
+                postulant.setNotificationId(oneSignalId);
+                Postulant postulantSaved = postulantRepository.save(postulant);
+                return new ResponseEntity<>(Response.success(postulantSaved, "Modification réussie"), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(Response.error(new HashMap<>(), "Authentification échouée"), HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(Response.error(e, "Authentification échouée"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

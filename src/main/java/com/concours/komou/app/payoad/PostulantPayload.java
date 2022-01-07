@@ -5,6 +5,7 @@ public class PostulantPayload {
    public String nom;
    public String telephone;
    public String password;
+   public String notificationId;
 
     public String getPrenom() {
         return prenonm;
@@ -36,5 +37,21 @@ public class PostulantPayload {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPrenonm() {
+        return prenonm;
+    }
+
+    public void setPrenonm(String prenonm) {
+        this.prenonm = prenonm;
+    }
+
+    public String getNotificationId() {
+        return notificationId;
+    }
+
+    public void setNotificationId(String notificationId) {
+        this.notificationId = notificationId;
     }
 }

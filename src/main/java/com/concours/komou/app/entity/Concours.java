@@ -1,10 +1,8 @@
 package com.concours.komou.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
-import javax.print.attribute.standard.DocumentName;
 import java.util.List;
 
 @Entity

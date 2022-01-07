@@ -1,16 +1,29 @@
 package com.concours.komou.app.service;
 
 import com.concours.komou.app.entity.*;
+import com.concours.komou.app.payoad.NotificationPayload;
 import com.concours.komou.app.payoad.ResultatPostulant;
 import com.concours.komou.app.repo.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import java.io.IOException;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+
+//import com.sun.org.slf4j.internal.Logger;
+//import com.sun.org.slf4j.internal.LoggerFactory;
 
 @Service
 public class ResultatService {
@@ -19,13 +32,23 @@ public class ResultatService {
     private final PostulantRepository postulantRepository;
     private final PostulantResultatRepository postulantResultatRepository;
     private final PostulationRepository postulationRepository;
+    private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
+//    Logger logger = LoggerFactory.getLogger(LoggingController.class);
 
-    public ResultatService(ResultatRepository resultatRepository, ConcoursRepository concoursRepository, PostulantRepository postulantRepository, PostulantResultatRepository postulantResultatRepository, PostulationRepository postulationRepository) {
+
+    private XSSFWorkbook workbook;
+    private XSSFSheet sheet;
+
+    public ResultatService(ResultatRepository resultatRepository, ConcoursRepository concoursRepository, PostulantRepository postulantRepository, PostulantResultatRepository postulantResultatRepository, PostulationRepository postulationRepository, NotificationService notificationService, NotificationRepository notificationRepository) {
         this.resultatRepository = resultatRepository;
         this.concoursRepository = concoursRepository;
         this.postulantRepository = postulantRepository;
         this.postulantResultatRepository = postulantResultatRepository;
         this.postulationRepository = postulationRepository;
+        this.notificationService = notificationService;
+        this.notificationRepository = notificationRepository;
+        workbook = new XSSFWorkbook();
     }
     public ResponseEntity<Map<String, Object>> publishResultat(ResultatPostulant resultatPostulant) {
         try {
@@ -72,12 +95,60 @@ public class ResultatService {
                 postulantResultatEchoue.add(postulantResultat);
             });
 
-            postulantResultatRepository.saveAll(postulantResultatList); // save resltat for each postulant admis
-            postulantResultatRepository.saveAll(postulantResultatEchoue); // save resltat for each postulant echoue
+           List<PostulantResultat> postulantResultatsAdmis = postulantResultatRepository.saveAll(postulantResultatList); // save resltat for each postulant admis
+            List<PostulantResultat> postulantResultatsEchoues = postulantResultatRepository.saveAll(postulantResultatEchoue); // save resltat for each postulant echoue
+
+
+
+            postulantResultatsAdmis.forEach(postulantResultat -> {
+                System.err.println("admis "+ postulantResultat.getPostulant().getNom());
+                NotificationPayload  notificationPayload = new NotificationPayload();
+                notificationPayload.setType("RESULTAT");
+                notificationPayload.setPostulantResultatId(postulantResultat.getId());
+                notificationPayload.setPostulantId(postulantResultat.getPostulant().getId());
+                List<String> included_segments = new ArrayList<>();
+                included_segments.add(postulantResultat.getPostulant().getNotificationId());
+                System.err.println("start notification " + notificationPayload.getPostulantResultatId());
+                System.err.println("start resultat " + postulantResultat.getPostulant().getNotificationId());
+
+                Notification notification = new Notification();
+                notification.setPostulant(postulantResultat.getPostulant());
+                notification.setTitre("RESULTAT");
+                notification.setDescription("Votre résultat pour le concours " + postulantResultat.getResultat().getConcours().getName() + " est disponible.");
+                notification.setType(notificationPayload.getType());
+                notification.setPostulantResultat(postulantResultat);
+                notificationRepository.save(notification);
+
+                notificationService.sendPushNotification(notificationPayload, included_segments);
+            });
+
+            postulantResultatsEchoues.forEach(postulantResultat -> {
+                NotificationPayload notificationPayload = new NotificationPayload();
+                notificationPayload.setType("RESULTAT");
+                notificationPayload.setDescription("Votre résultat pour le concours " + postulantResultat.getResultat().getConcours().getName() + " est disponible.");
+                notificationPayload.setPostulantResultatId(postulantResultat.getId());
+                notificationPayload.setTitre("RESULTAT");
+                notificationPayload.setPostulantId(postulantResultat.getPostulant().getId());
+                List<String> included_segments = new ArrayList<>();
+                included_segments.add(postulantResultat.getPostulant().getNotificationId());
+
+                Notification notification = new Notification();
+                notification.setPostulant(postulantResultat.getPostulant());
+                notification.setTitre("RESULTAT");
+                notification.setDescription("Votre résultat pour le concours " + postulantResultat.getResultat().getConcours().getName() + " est disponible.");
+                notification.setType(notificationPayload.getType());
+                notification.setPostulantResultat(postulantResultat);
+                notificationRepository.save(notification);
+
+
+//                notificationService.saveNotification(notificationPayload);
+                notificationService.sendPushNotification(notificationPayload, included_segments);
+            });
 
             return new ResponseEntity<>(Response.success(resultatSaved, "Resultat publiée"), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(Response.error(new HashMap<>(), "Erreur d'enregistrement"), HttpStatus.INTERNAL_SERVER_ERROR);
+            System.err.println(e);
+            return new ResponseEntity<>(Response.error(e, "Erreur d'enregistrement"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -124,5 +195,73 @@ public class ResultatService {
         } catch (Exception e) {
             return new ResponseEntity<>(Response.error(new HashMap<>(), "Erreur de  recupération."), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+
+    //export to excel
+    private void writeHeaderLine() {
+        sheet = workbook.createSheet("Résultat");
+
+        Row row = sheet.createRow(0);
+
+        CellStyle style = workbook.createCellStyle();
+        XSSFFont font = workbook.createFont();
+        font.setBold(true);
+        font.setFontHeight(16);
+        style.setFont(font);
+
+        createCell(row, 0, "Prenom", style);
+        createCell(row, 1, "Nom", style);
+        createCell(row, 2, "Telephone", style);
+        createCell(row, 3, "Situation", style);
+
+    }
+
+    private void createCell(Row row, int columnCount, Object value, CellStyle style) {
+        sheet.autoSizeColumn(columnCount);
+        Cell cell = row.createCell(columnCount);
+        if (value instanceof Integer) {
+            cell.setCellValue((Integer) value);
+        } else if (value instanceof Boolean) {
+            cell.setCellValue((Boolean) value);
+        }else {
+            cell.setCellValue((String) value);
+        }
+        cell.setCellStyle(style);
+    }
+
+    private void writeDataLines(Long resultatId) {
+        int rowCount = 1;
+        List<PostulantResultat> postulantResultats = postulantResultatRepository.getPostulantAdmisForExcel(resultatId);
+
+
+        CellStyle style = workbook.createCellStyle();
+        XSSFFont font = workbook.createFont();
+        font.setFontHeight(14);
+        style.setFont(font);
+
+        for (PostulantResultat postulantResultat : postulantResultats) {
+            Row row = sheet.createRow(rowCount++);
+            int columnCount = 0;
+
+            createCell(row, columnCount++, postulantResultat.getPostulant().getPrenom(), style);
+            createCell(row, columnCount++, postulantResultat.getPostulant().getNom(), style);
+            createCell(row, columnCount++, postulantResultat.getPostulant().getTelephone(), style);
+            createCell(row, columnCount++, postulantResultat.getStatut(), style);
+//            createCell(row, columnCount++, user.isEnabled(), style);
+
+        }
+    }
+
+    public void export(HttpServletResponse response, Long resultatId) throws IOException {
+        writeHeaderLine();
+        writeDataLines(resultatId);
+
+        ServletOutputStream outputStream = response.getOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        outputStream.close();
+
     }
 }

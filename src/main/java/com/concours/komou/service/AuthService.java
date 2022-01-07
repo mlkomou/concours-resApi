@@ -1,8 +1,8 @@
 package com.concours.komou.service;
 
-import com.concours.komou.app.entity.Postulant;
 import com.concours.komou.app.entity.Response;
 import com.concours.komou.app.repo.PostulantRepository;
+import com.concours.komou.app.service.PostulationService;
 import com.concours.komou.entity.ApplicationUser;
 import com.concours.komou.entity.UserAndPostulant;
 import com.concours.komou.entity.UserConnected;
@@ -79,7 +79,6 @@ public class AuthService {
             System.err.println("auth error: " + e);
             return new ResponseEntity<>(Response.error(e, "Authentification échouée"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-
     }
+
 }

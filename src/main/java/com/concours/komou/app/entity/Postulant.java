@@ -19,6 +19,9 @@ public class Postulant extends Generality {
     @Column(name = "telephone")
     private String telephone;
 
+    @Column(name = "notificationId")
+    private String notificationId;
+
     @JsonBackReference(value = "user-postulant")
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user", referencedColumnName = "id")
@@ -56,4 +59,11 @@ public class Postulant extends Generality {
         this.user = user;
     }
 
+    public String getNotificationId() {
+        return notificationId;
+    }
+
+    public void setNotificationId(String notificationId) {
+        this.notificationId = notificationId;
+    }
 }

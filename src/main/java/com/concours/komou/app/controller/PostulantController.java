@@ -4,10 +4,7 @@ import com.concours.komou.app.entity.Postulant;
 import com.concours.komou.app.payoad.PostulantPayload;
 import com.concours.komou.app.service.PostulantService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -23,5 +20,10 @@ public class PostulantController {
     @PostMapping("save")
     public ResponseEntity<Map<String, Object>> subscribePostulant(@RequestBody PostulantPayload postulant) {
         return postulantService.savePostulant(postulant);
+    }
+
+    @PostMapping("update-notification-id")
+    public ResponseEntity<Map<String, Object>> updateNotificationId(@RequestParam("userId") Long userId, @RequestParam("notificationId") String notificationId) {
+        return postulantService.updateOneSignalId(userId, notificationId);
     }
 }
