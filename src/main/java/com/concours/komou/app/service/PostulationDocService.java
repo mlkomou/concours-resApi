@@ -1,5 +1,6 @@
 package com.concours.komou.app.service;
 
+import com.concours.komou.app.constants.AppConstants;
 import com.concours.komou.app.entity.Notification;
 import com.concours.komou.app.entity.Postulation;
 import com.concours.komou.app.entity.PostulationDoc;
@@ -11,6 +12,7 @@ import com.concours.komou.app.repo.PostulationRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -20,12 +22,14 @@ public class PostulationDocService {
     private final PostulationRepository postulationRepository;
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
+    private final UploadImageService uploadImageService;
 
-    public PostulationDocService(PostulationDocRepository postulationDocRepository, PostulationRepository postulationRepository, NotificationService notificationService, NotificationRepository notificationRepository) {
+    public PostulationDocService(PostulationDocRepository postulationDocRepository, PostulationRepository postulationRepository, NotificationService notificationService, NotificationRepository notificationRepository, UploadImageService uploadImageService) {
         this.postulationDocRepository = postulationDocRepository;
         this.postulationRepository = postulationRepository;
         this.notificationService = notificationService;
         this.notificationRepository = notificationRepository;
+        this.uploadImageService = uploadImageService;
     }
     public ResponseEntity<Map<String, Object>> getDocByPostulantAndConcours(Long postulationId, Long concoursId, Long postulantId) {
         try {
@@ -53,7 +57,7 @@ public class PostulationDocService {
                     if (postulationDoc1.getAccepted().equals("ACCEPTÉ")) {
                         System.err.println("docs acepted "+ postulationDoc1.toString());
                         postulationDocAccepted.add(postulationDoc1);
-                    } else {
+                    } else if (postulationDoc1.getAccepted().equals("REJETTÉ")) {
                         postulationDocrejected.add(postulationDoc1);
 
                         NotificationPayload notificationPayload = new NotificationPayload();
@@ -79,20 +83,6 @@ public class PostulationDocService {
                 });
                 System.err.println("refuse size "+ postulationDocrejected.size());
 
-//                postulationDocrejected.forEach(postulationDoc2 -> {
-//                    NotificationPayload notificationPayload = new NotificationPayload();
-//                    notificationPayload.setPostulationDocId(postulationDoc2.getId());
-//                    notificationPayload.setType("DOCUMENT");
-//                    notificationPayload.setDescription("Ce document: " + postulationDoc2.getName() + " est rejetté !");
-//                    notificationPayload.setTitre("DOCUMENT");
-//                    notificationPayload.setPostulantId(postulationDoc2.getPostulation().getPostulant().getId());
-//                    List<String> included_segments = new ArrayList<>();
-//                    included_segments.add(postulationDoc2.getPostulation().getPostulant().getNotificationId());
-////                    notificationService.saveNotification(notificationPayload);
-//                    notificationService.sendPushNotification(notificationPayload, included_segments);
-//                });
-
-
                 if (postulationDocs.size() == postulationDocAccepted.size()) {
                     System.err.println("postulationDocs "+postulationDocs.size());
                     System.err.println("postulationDocAccepted "+postulationDocAccepted.size());
@@ -101,6 +91,23 @@ public class PostulationDocService {
                         postulation1.setValidation("VALIDÉ");
                         Postulation postulationUpdated = postulationRepository.save(postulation1);
                         System.err.println("postulation accepted "+ postulation1.toString());
+
+                        NotificationPayload notificationPayload = new NotificationPayload();
+                        notificationPayload.setType("DOSSIER");
+                        notificationPayload.setDescription("Votre dossier a été accepté !");
+                        notificationPayload.setTitre("DOSSIER");
+                        List<String> included_segments = new ArrayList<>();
+                        included_segments.add(postulation1.getPostulant().getNotificationId());
+
+                        Notification notification = new Notification();
+                        notification.setPostulationDoc(postulationDoc);
+                        notification.setPostulant(postulationDoc.getPostulation().getPostulant());
+                        notification.setTitre("DOSSIER");
+                        notification.setDescription("Votre dossier a été accepté !");
+                        notification.setType("DOCUMENT");
+                        notificationRepository.save(notification);
+                        notificationService.sendPushNotification(notificationPayload, included_segments);
+
                         return new ResponseEntity<>(Response.success(postulationUpdated, "Document mis à jour."), HttpStatus.OK);
                     }
                 } else {
@@ -121,6 +128,21 @@ public class PostulationDocService {
                 return new ResponseEntity<>(Response.success(postulationDocSaved, "Document mis à jour."), HttpStatus.OK);
             }
             return new ResponseEntity<>(Response.error(new HashMap<>(), "Ce document n'existe pas !"), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Response.error(e, "Erreur de la modification."), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>>updateDocForPostulant(Long docId, MultipartFile doc) {
+        try {
+            Optional<PostulationDoc> postulationDocOptional = postulationDocRepository.findById(docId);
+            if (postulationDocOptional.isPresent()) {
+                postulationDocOptional.get().setType(doc.getContentType());
+                postulationDocOptional.get().setPath(uploadImageService.updateImage(doc, AppConstants.DOCUMENT_UPLOAD_LINK, postulationDocOptional.get().getPath()));
+                PostulationDoc postulationDocUpdated = postulationDocRepository.save(postulationDocOptional.get());
+                return new ResponseEntity<>(Response.success(postulationDocUpdated, "Document modifié."), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(Response.error(new HashMap<>(), "Ce document n'existe pas."), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(Response.error(new HashMap<>(), "Erreur de la modification."), HttpStatus.INTERNAL_SERVER_ERROR);
         }

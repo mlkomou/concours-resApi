@@ -6,6 +6,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +35,12 @@ public class PostulatioDocController {
                                                            @RequestParam("accepted") String accepted,
                                                            @RequestParam("postulationId") Long postulationId) {
         return postulationDocService.changeState(docId, accepted, postulationId);
+    }
+
+    @PostMapping("update-doc")
+    public ResponseEntity<Map<String, Object>> updateDoc(@RequestParam("docId") Long docId,
+                                                           @RequestParam("doc") MultipartFile doc) {
+        return postulationDocService.updateDocForPostulant(docId, doc);
     }
 
     @ResponseBody

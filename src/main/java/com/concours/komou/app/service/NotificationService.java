@@ -6,6 +6,7 @@ import com.concours.komou.app.repo.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,13 +23,15 @@ public class NotificationService {
     private final ConcoursRepository concoursRepository;
     private final PostulationDocRepository postulationDocRepository;
     private final NotificationRepository notificationRepository;
+    private final PostulationRepository postulationRepository;
 
-    public NotificationService(PostulantRepository postulantRepository, PostulantResultatRepository postulantResultatRepository, ConcoursRepository concoursRepository, PostulationDocRepository postulationDocRepository, NotificationRepository notificationRepository) {
+    public NotificationService(PostulantRepository postulantRepository, PostulantResultatRepository postulantResultatRepository, ConcoursRepository concoursRepository, PostulationDocRepository postulationDocRepository, NotificationRepository notificationRepository, PostulationRepository postulationRepository) {
         this.postulantRepository = postulantRepository;
         this.postulantResultatRepository = postulantResultatRepository;
         this.concoursRepository = concoursRepository;
         this.postulationDocRepository = postulationDocRepository;
         this.notificationRepository = notificationRepository;
+        this.postulationRepository = postulationRepository;
     }
 
     public void sendPushNotification(NotificationPayload notificationPayload, List<String> included_segments) {
@@ -75,6 +78,14 @@ public class NotificationService {
                 headerSingle2.add("Authorization", "Basic OTRjNjZkMTgtZWQ0Ni00OTMzLTkxNjMtZGUzYjdkOTA4OWZm");
                 HttpEntity<SingleNotification> entitySingle2 = new HttpEntity<>(singleNotification, headerSingle2);
                 restTemplate.postForObject("https://onesignal.com/api/v1/notifications", entitySingle2, ResponsePush.class);
+                break;
+            case "DOSSIER":
+                singleNotification.setData(new PushDataDetail("DOCUMENT"));
+                singleNotification.setContents(new PushDetail("Votre dossier a été accepté."));
+                HttpHeaders headerSingle3 = new HttpHeaders();
+                headerSingle3.add("Authorization", "Basic OTRjNjZkMTgtZWQ0Ni00OTMzLTkxNjMtZGUzYjdkOTA4OWZm");
+                HttpEntity<SingleNotification> entitySingle3 = new HttpEntity<>(singleNotification, headerSingle3);
+                restTemplate.postForObject("https://onesignal.com/api/v1/notifications", entitySingle3, ResponsePush.class);
 
             default:
                 // code block
@@ -83,9 +94,24 @@ public class NotificationService {
 
     public ResponseEntity<Map<String, Object>> getNotifications(int page, int size, Long postulantId) {
         try {
-            Pageable paging = PageRequest.of(page, size);
+            Sort defaultSort = Sort.by(Sort.Direction.DESC, "createdAt");
+            Pageable paging = PageRequest.of(page, size, defaultSort);
             Page<Notification> notifications = notificationRepository.findAllByPostulantId(paging, postulantId);
             return new ResponseEntity<>(Response.success(notifications, "Liste notifications"), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Response.error(e, "Erreur de recupération."), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> updateStateNotification(Long id, String state) {
+        try {
+            Optional<Notification> notification = notificationRepository.findById(id);
+            if (notification.isPresent()) {
+                notification.get().setLecture(state);
+                 Notification notificationUpdated = notificationRepository.save(notification.get());
+                 return new ResponseEntity<>(Response.success(notificationUpdated, "Notification lue"), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(Response.error(new HashMap<>(), "cette notification n'existe pas."), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(Response.error(e, "Erreur de recupération."), HttpStatus.INTERNAL_SERVER_ERROR);
         }

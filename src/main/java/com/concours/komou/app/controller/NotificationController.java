@@ -24,4 +24,10 @@ public class NotificationController {
                                                                  @RequestParam("postulantId") Long posulantId) {
         return notificationService.getNotifications(page, size, posulantId);
     }
+
+    @PostMapping("update-state")
+    public ResponseEntity<Map<String, Object>> updateState(@RequestParam("id") Long id,
+                                                                      @RequestParam("state") String state) {
+        return notificationService.updateStateNotification(id, state);
+    }
 }

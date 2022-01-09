@@ -8,6 +8,7 @@ public class NotificationPayload {
    public Long postulantId;
    public Long postulantResultatId;
    public Long postulationDocId;
+   public Long postulationId;
 
     public String getTitre() {
         return titre;
@@ -63,5 +64,13 @@ public class NotificationPayload {
 
     public void setPostulationDocId(Long postulationDocId) {
         this.postulationDocId = postulationDocId;
+    }
+
+    public Long getPostulationId() {
+        return postulationId;
+    }
+
+    public void setPostulationId(Long postulationId) {
+        this.postulationId = postulationId;
     }
 }

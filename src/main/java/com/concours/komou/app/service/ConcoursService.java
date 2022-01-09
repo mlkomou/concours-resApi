@@ -10,6 +10,7 @@ import com.concours.komou.app.repo.PostulantRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -73,7 +74,8 @@ public class ConcoursService {
 
     public ResponseEntity<Map<String, Object>> getAllConcoursByPage(int page, int size) {
         try {
-            Pageable paging = PageRequest.of(page, size);
+            Sort defaultSort = Sort.by(Sort.Direction.DESC, "createdAt");
+            Pageable paging = PageRequest.of(page, size, defaultSort);
             Page<Concours> concours = concoursRepository.findAll(paging);
             return new ResponseEntity<>(Response.success(concours, "Liste concours"), HttpStatus.OK);
         } catch (Exception e) {

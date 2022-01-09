@@ -3,6 +3,7 @@ package com.concours.komou.app.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -18,10 +19,8 @@ public class Concours extends Generality {
     private String description;
     @Column(name = "path")
     private String path;
-
-//    @JsonManagedReference(value = "resultat-concours")
-//    @OneToOne(mappedBy = "concours")
-//    private Resultat resultat;
+    @Column(name = "dateLimite")
+    private String dateLimite;
 
     @OneToMany(mappedBy = "concours")
     @JsonIgnoreProperties(value = {"concours"}, allowSetters = true)
@@ -34,14 +33,6 @@ public class Concours extends Generality {
     public void setName(String name) {
         this.name = name;
     }
-
-//    public Resultat getResultat() {
-//        return resultat;
-//    }
-//
-//    public void setResultat(Resultat resultat) {
-//        this.resultat = resultat;
-//    }
 
     public String getPath() {
         return path;
@@ -73,5 +64,13 @@ public class Concours extends Generality {
 
     public void setDocs(List<DoumentNamePublication> docs) {
         this.docs = docs;
+    }
+
+    public String getDateLimite() {
+        return dateLimite;
+    }
+
+    public void setDateLimite(String dateLimite) {
+        this.dateLimite = dateLimite;
     }
 }

@@ -13,6 +13,9 @@ public class Notification extends Generality {
     @Column(name = "type")
     private String type;
 
+    @Column(name = "lecture")
+    private String lecture = "non";
+
     @ManyToOne
     @JoinColumn(name="participation")
     private Concours concours;
@@ -85,5 +88,11 @@ public class Notification extends Generality {
         this.postulationDoc = postulationDoc;
     }
 
+    public String getLecture() {
+        return lecture;
+    }
 
+    public void setLecture(String lecture) {
+        this.lecture = lecture;
+    }
 }

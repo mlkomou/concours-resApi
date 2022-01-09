@@ -13,6 +13,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -179,7 +180,8 @@ public class ResultatService {
 
     public ResponseEntity<Map<String, Object>> getResultByPostulant(int page, int size, Long postulantId) {
         try {
-            Pageable paging = PageRequest.of(page, size);
+            Sort defaultSort = Sort.by(Sort.Direction.DESC, "createdAt");
+            Pageable paging = PageRequest.of(page, size, defaultSort);
             Page<PostulantResultat> resultatPage = postulantResultatRepository.findAllByPostulantId(paging, postulantId);
             return new ResponseEntity<>(Response.success(resultatPage, "Liste des résultats !"), HttpStatus.OK);
         } catch (Exception e) {
