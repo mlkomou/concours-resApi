@@ -18,15 +18,14 @@ import java.util.*;
 
 @Service
 public class NotificationService {
-    private final PostulantRepository postulantRepository;
     private final PostulantResultatRepository postulantResultatRepository;
     private final ConcoursRepository concoursRepository;
     private final PostulationDocRepository postulationDocRepository;
     private final NotificationRepository notificationRepository;
     private final PostulationRepository postulationRepository;
 
-    public NotificationService(PostulantRepository postulantRepository, PostulantResultatRepository postulantResultatRepository, ConcoursRepository concoursRepository, PostulationDocRepository postulationDocRepository, NotificationRepository notificationRepository, PostulationRepository postulationRepository) {
-        this.postulantRepository = postulantRepository;
+    public NotificationService(PostulantResultatRepository postulantResultatRepository, ConcoursRepository concoursRepository, PostulationDocRepository postulationDocRepository, NotificationRepository notificationRepository, PostulationRepository postulationRepository) {
+
         this.postulantResultatRepository = postulantResultatRepository;
         this.concoursRepository = concoursRepository;
         this.postulationDocRepository = postulationDocRepository;
@@ -47,12 +46,15 @@ public class NotificationService {
         singleNotification.setApp_id("c57fcda9-a264-4e52-8741-207712809b28");
         singleNotification.setInclude_player_ids(included_segments);
         singleNotification.setHeadings(new PushDetail("MonConcours"));
+        Map<String, Object> data = new HashMap<>();
 
         switch (notificationPayload.getType()) {
             case "NEW CONCOURS":
                 Optional<Concours> concoursOptional = concoursRepository.findById(notificationPayload.getConcoursId());
                 Concours concours = concoursOptional.get();
-                pushNotification.setData(new PushDataDetail("NEW CONCOURS"));
+                data.put("data", concours);
+                data.put("type", "CONCOURS");
+                pushNotification.setData(new PushDataDetail(data));
                 pushNotification.setContents(new PushDetail("Un nouvel concours est disponible: " + concours.getName()));
                 HttpHeaders headers = new HttpHeaders();
                 headers.add("Authorization", "Basic OTRjNjZkMTgtZWQ0Ni00OTMzLTkxNjMtZGUzYjdkOTA4OWZm");
@@ -62,7 +64,9 @@ public class NotificationService {
             case "RESULTAT":
                 Optional<PostulantResultat> postulantResultatOptional = postulantResultatRepository.findById(notificationPayload.getPostulantResultatId());
                 PostulantResultat postulantResultat = postulantResultatOptional.get();
-                singleNotification.setData(new PushDataDetail("RESULTAT"));
+                data.put("data", postulantResultat);
+                data.put("type", "RESULTAT");
+                singleNotification.setData(new PushDataDetail(data));
                 singleNotification.setContents(new PushDetail("Votre résultat pour le concours " + postulantResultat.getResultat().getConcours().getName() + " est disponible."));
                 HttpHeaders headerSingle = new HttpHeaders();
                 headerSingle.add("Authorization", "Basic OTRjNjZkMTgtZWQ0Ni00OTMzLTkxNjMtZGUzYjdkOTA4OWZm");
@@ -72,7 +76,9 @@ public class NotificationService {
             case "DOCUMENT":
                 Optional<PostulationDoc> postulationDocOptional = postulationDocRepository.findById(notificationPayload.getPostulationDocId());
                 PostulationDoc postulationDoc = postulationDocOptional.get();
-                singleNotification.setData(new PushDataDetail("DOCUMENT"));
+                data.put("data", postulationDoc);
+                data.put("type", "DOCUMENT");
+                singleNotification.setData(new PushDataDetail(data));
                 singleNotification.setContents(new PushDetail("Ce document: " + postulationDoc.getName() + " est rejetté !"));
                 HttpHeaders headerSingle2 = new HttpHeaders();
                 headerSingle2.add("Authorization", "Basic OTRjNjZkMTgtZWQ0Ni00OTMzLTkxNjMtZGUzYjdkOTA4OWZm");
@@ -80,7 +86,10 @@ public class NotificationService {
                 restTemplate.postForObject("https://onesignal.com/api/v1/notifications", entitySingle2, ResponsePush.class);
                 break;
             case "DOSSIER":
-                singleNotification.setData(new PushDataDetail("DOCUMENT"));
+                Optional<Postulation> postulationOptional = postulationRepository.findById(notificationPayload.getPostulationId());
+                data.put("data", postulationOptional.get());
+                data.put("type", "DOSSIER");
+                singleNotification.setData(new PushDataDetail(data));
                 singleNotification.setContents(new PushDetail("Votre dossier a été accepté."));
                 HttpHeaders headerSingle3 = new HttpHeaders();
                 headerSingle3.add("Authorization", "Basic OTRjNjZkMTgtZWQ0Ni00OTMzLTkxNjMtZGUzYjdkOTA4OWZm");

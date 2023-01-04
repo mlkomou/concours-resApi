@@ -96,6 +96,7 @@ public class PostulationDocService {
                         notificationPayload.setType("DOSSIER");
                         notificationPayload.setDescription("Votre dossier a été accepté !");
                         notificationPayload.setTitre("DOSSIER");
+                        notificationPayload.setPostulationId(postulationId);
                         List<String> included_segments = new ArrayList<>();
                         included_segments.add(postulation1.getPostulant().getNotificationId());
 

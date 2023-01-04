@@ -1,17 +1,19 @@
 package com.concours.komou.app.payoad;
 
-public class PushDataDetail {
-    private String tache;
+import java.util.Map;
 
-    public PushDataDetail(String tache) {
+public class PushDataDetail {
+    private Map<String, Object> tache;
+
+    public PushDataDetail(Map<String, Object>  tache) {
         this.tache = tache;
     }
 
-    public String getTache() {
+    public Map<String, Object>  getTache() {
         return tache;
     }
 
-    public void setTache(String tache) {
+    public void setTache(Map<String, Object>  tache) {
         this.tache = tache;
     }
 }
